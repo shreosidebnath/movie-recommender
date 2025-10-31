@@ -10,7 +10,7 @@ export default function MovieSelection({ movies, onComplete }) {
 
   const maxSelection = 50;
   const minSelection = 5;
-  const displayedMovies = movies.slice(0, Math.min(displayCount, 1000));
+  const displayedMovies = Array.isArray(movies) ? movies.slice(0, Math.min(displayCount, 1000)) : [];
 
   const handleMovieSelect = (movie) => {
     if (selectedMovies.find(m => m.id === movie.id)) {
@@ -139,13 +139,12 @@ export default function MovieSelection({ movies, onComplete }) {
                 alignItems: 'center',
                 gap: '0.5rem',
                 transition: 'transform 0.2s',
-                boxShadow: '0 4px 15px rgba(168, 85, 247, 0.4)',
+                boxShadow: '0 4px 15px rgba(147, 51, 234, 0.4)',
                 animation: 'pulse 2s infinite'
               }}
               onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
               onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
             >
-              <Sparkles size={20} />
               Get Recommendations
             </button>
           )}
@@ -184,7 +183,7 @@ export default function MovieSelection({ movies, onComplete }) {
               }}>
                 <div style={{ 
                   width: `${progressPercent}%`, 
-                  background: 'linear-gradient(to right, #a855f7, #4850ecff)',
+                  background: 'linear-gradient(to right, #9333ea, #4850ecff)',
                   height: '100%',
                   transition: 'width 0.3s ease'
                 }} />
@@ -213,7 +212,7 @@ export default function MovieSelection({ movies, onComplete }) {
                   alignItems: 'center',
                   gap: '0.5rem',
                   transition: 'transform 0.2s',
-                  boxShadow: '0 4px 15px rgba(168, 85, 247, 0.4)',
+                  boxShadow: '0 4px 15px rgba(147, 51, 234, 0.4)',
                   whiteSpace: 'nowrap'
                 }}
                 onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
@@ -262,7 +261,7 @@ export default function MovieSelection({ movies, onComplete }) {
             color: '#d1d5db',
             fontSize: '1.1rem'
           }}>
-            <p> You've reached the end! 1000 movies loaded.</p>
+            <p>You've reached the end! 1000 movies loaded.</p>
           </div>
         )}
       </div>
@@ -270,10 +269,10 @@ export default function MovieSelection({ movies, onComplete }) {
       <style>{`
         @keyframes pulse {
           0%, 100% {
-            box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
+            box-shadow: 0 4px 15px rgba(147, 51, 234, 0.4);
           }
           50% {
-            box-shadow: 0 4px 25px rgba(168, 85, 247, 0.7);
+            box-shadow: 0 4px 25px rgba(147, 51, 234, 0.7);
           }
         }
         

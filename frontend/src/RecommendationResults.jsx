@@ -186,9 +186,11 @@ export default function RecommendationResults({ recommendations, onRestart }) {
 
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+          gridTemplateColumns: 'repeat(5, 1fr)',
           gap: '2rem',
-          padding: '0 1rem'
+          padding: '0 1rem',
+          maxWidth: '1400px',
+          margin: '0 auto'
         }}>
           {recommendations.map((movie, index) => (
             <div

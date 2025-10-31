@@ -1,82 +1,91 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import MovieSelection from './MovieSelection';
 import RecommendationResults from './RecommendationResults';
 import LoadingScreen from './LoadingScreen';
 
-const API_URL = 'http://127.0.0.1:8000';
+const API_URL = 'https://movie-recommender-fo26.onrender.com';
+//const API_URL = 'http://127.0.0.1:8000';
 
-function App() {
+export default function App() {
   const [movies, setMovies] = useState([]);
-  const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [stage, setStage] = useState('selection'); // 'selection', 'loading', 'results'
+  const [currentView, setCurrentView] = useState('selection');
+  const [recommendations, setRecommendations] = useState([]);
+  const [isGenerating, setIsGenerating] = useState(false);
 
-  // Fetch movies on mount
   useEffect(() => {
     fetchMovies();
   }, []);
 
   const fetchMovies = async () => {
     try {
-      setLoading(true);
-      const response = await axios.get(`${API_URL}/movies`);
-      setMovies(response.data.movies);
-      setLoading(false);
+      const response = await fetch(`${API_URL}/movies`);
+      if (!response.ok) throw new Error('Failed to fetch');
+      const data = await response.json();
+      setMovies(data.movies || []);
     } catch (error) {
-      console.error('Error fetching movies:', error);
-      setLoading(false);
+      console.error('Error:', error);
       alert('Failed to load movies. Make sure the backend is running!');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleSelectionComplete = async (selectedMovies) => {
-    setStage('loading');
-    
+  const handleMovieSelection = async (selectedMovies) => {
+    setIsGenerating(true);
     try {
-      const movieIds = selectedMovies.map(m => m.id);
-      const response = await axios.post(`${API_URL}/recommend`, {
-        movie_ids: movieIds,
-        n_recommendations: 10
+      const response = await fetch(`${API_URL}/recommend`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          movie_ids: selectedMovies.map(m => m.id),
+          n_recommendations: 10
+        })
       });
       
-      setRecommendations(response.data.recommendations);
-      setStage('results');
+      if (!response.ok) throw new Error('Failed to get recommendations');
+      const data = await response.json();
+      setRecommendations(data.recommendations);
+      setCurrentView('results');
+      window.history.pushState({ view: 'results' }, '', '#results');
     } catch (error) {
-      console.error('Error getting recommendations:', error);
+      console.error('Error:', error);
       alert('Failed to get recommendations. Please try again!');
-      setStage('selection');
+    } finally {
+      setIsGenerating(false);
     }
   };
 
   const handleRestart = () => {
-    setStage('selection');
     setRecommendations([]);
+    setCurrentView('selection');
+    window.history.pushState({ view: 'selection' }, '', '#');
   };
+
+  useEffect(() => {
+    const handlePopState = (event) => {
+      if (event.state?.view === 'results') {
+        setCurrentView('results');
+      } else {
+        setCurrentView('selection');
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   if (loading) {
     return <LoadingScreen />;
   }
 
-  if (stage === 'loading') {
+  if (isGenerating) {
     return <LoadingScreen />;
   }
 
-  if (stage === 'results') {
-    return (
-      <RecommendationResults 
-        recommendations={recommendations}
-        onRestart={handleRestart}
-      />
-    );
+  if (currentView === 'results') {
+    return <RecommendationResults recommendations={recommendations} onRestart={handleRestart} />;
   }
 
-  return (
-    <MovieSelection 
-      movies={movies}
-      onComplete={handleSelectionComplete}
-    />
-  );
+  return <MovieSelection movies={movies} onComplete={handleMovieSelection} />;
 }
-
-export default App;
