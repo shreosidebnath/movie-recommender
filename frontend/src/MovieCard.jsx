@@ -1,6 +1,9 @@
 import { Star, Check } from 'lucide-react';
+import { useState } from 'react';
 
 export default function MovieCard({ movie, isSelected, onSelect, showScore = false }) {
+  const [showTooltip, setShowTooltip] = useState(false);
+
   const posterUrl = movie.poster_path 
     ? `https://image.tmdb.org/t/p/w300${movie.poster_path}`
     : 'https://via.placeholder.com/300x450?text=No+Poster';
@@ -8,24 +11,19 @@ export default function MovieCard({ movie, isSelected, onSelect, showScore = fal
   return (
     <div
       onClick={onSelect}
+      onMouseEnter={() => setShowTooltip(true)}
+      onMouseLeave={() => setShowTooltip(false)}
       style={{
         position: 'relative',
         cursor: 'pointer',
         borderRadius: '0.5rem',
-        overflow: 'hidden',
+        overflow: 'visible',
         boxShadow: isSelected ? '0 0 0 4px #a855f7' : '0 4px 6px rgba(0,0,0,0.3)',
         transition: 'all 0.2s',
         background: '#1e293b',
         transform: isSelected ? 'translateY(-4px)' : 'translateY(0)'
       }}
-      onMouseEnter={(e) => {
-        if (!isSelected) e.currentTarget.style.transform = 'translateY(-8px)';
-      }}
-      onMouseLeave={(e) => {
-        if (!isSelected) e.currentTarget.style.transform = 'translateY(0)';
-      }}
     >
-      {/* Movie Poster */}
       <img
         src={posterUrl}
         alt={movie.title}
@@ -37,14 +35,12 @@ export default function MovieCard({ movie, isSelected, onSelect, showScore = fal
         }}
       />
       
-      {/* Dark Overlay */}
       <div style={{
         position: 'absolute',
         inset: 0,
         background: 'linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.3))',
       }} />
       
-      {/* Movie Info */}
       <div style={{
         position: 'absolute',
         bottom: 0,
@@ -82,7 +78,7 @@ export default function MovieCard({ movie, isSelected, onSelect, showScore = fal
         {showScore && movie.similarity_score && (
           <div style={{
             marginTop: '0.5rem',
-            background: 'linear-gradient(to right, #a855f7, #ec4899)',
+            background: 'linear-gradient(to right, #9333ea, #4850ecff)',
             padding: '0.25rem 0.75rem',
             borderRadius: '9999px',
             display: 'inline-block'
@@ -94,7 +90,6 @@ export default function MovieCard({ movie, isSelected, onSelect, showScore = fal
         )}
       </div>
       
-      {/* Selected Indicator */}
       {isSelected && (
         <div style={{
           position: 'absolute',
@@ -109,7 +104,6 @@ export default function MovieCard({ movie, isSelected, onSelect, showScore = fal
         </div>
       )}
       
-      {/* Selected Overlay */}
       {isSelected && (
         <div style={{
           position: 'absolute',
@@ -119,6 +113,70 @@ export default function MovieCard({ movie, isSelected, onSelect, showScore = fal
           pointerEvents: 'none'
         }} />
       )}
+
+      {showTooltip && showScore && movie.similarity_score && (
+        <div style={{
+          position: 'absolute',
+          bottom: '100%',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          marginBottom: '0.5rem',
+          background: 'rgba(15, 23, 42, 0.98)',
+          backdropFilter: 'blur(10px)',
+          padding: '0.75rem 1rem',
+          borderRadius: '0.5rem',
+          border: '1px solid #334155',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.5)',
+          minWidth: '200px',
+          maxWidth: '300px',
+          zIndex: 1000,
+          pointerEvents: 'none',
+          animation: 'tooltipFade 0.2s ease'
+        }}>
+          <div style={{ fontSize: '0.75rem', color: '#e5e7eb', lineHeight: '1.4' }}>
+            <p style={{ margin: '0 0 0.5rem 0', fontWeight: 'bold', color: '#a855f7', fontSize: '0.85rem' }}>
+              Why we recommended this:
+            </p>
+            <p style={{ margin: '0 0 0.25rem 0' }}>
+              <strong style={{ color: '#fbbf24' }}>{movie.similarity_score?.toFixed(0)}%</strong> match based on your selections
+            </p>
+            {movie.genres && (
+              <p style={{ margin: '0.25rem 0 0 0' }}>
+                <strong>Genres:</strong> {movie.genres}
+              </p>
+            )}
+            {movie.vote_average && (
+              <p style={{ margin: '0.25rem 0 0 0' }}>
+                <strong>Rating:</strong> {movie.vote_average.toFixed(1)}/10
+              </p>
+            )}
+          </div>
+          <div style={{
+            position: 'absolute',
+            bottom: '-6px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: 0,
+            height: 0,
+            borderLeft: '6px solid transparent',
+            borderRight: '6px solid transparent',
+            borderTop: '6px solid rgba(15, 23, 42, 0.98)'
+          }} />
+        </div>
+      )}
+
+      <style>{`
+        @keyframes tooltipFade {
+          from {
+            opacity: 0;
+            transform: translateX(-50%) translateY(-5px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+          }
+        }
+      `}</style>
     </div>
   );
 }

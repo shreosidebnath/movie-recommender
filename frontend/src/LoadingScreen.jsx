@@ -3,8 +3,14 @@ import { Film } from 'lucide-react';
 
 export default function LoadingScreen() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
-      <div className="text-center">
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(to bottom right, #0f172a, #581c87, #0f172a)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center'
+    }}>
+      <div style={{ textAlign: 'center' }}>
         <motion.div
           animate={{ 
             rotate: 360,
@@ -13,27 +19,35 @@ export default function LoadingScreen() {
           transition={{ 
             duration: 2,
             repeat: Infinity,
-            ease: "easeInOut"
+            ease: 'easeInOut'
           }}
-          className="inline-block mb-8"
+          style={{ display: 'inline-block', marginBottom: '2rem' }}
         >
-          <Film size={80} className="text-purple-400" />
+          <Film size={80} style={{ color: '#a855f7' }} />
         </motion.div>
         
         <motion.h2
           animate={{ opacity: [0.5, 1, 0.5] }}
           transition={{ duration: 1.5, repeat: Infinity }}
-          className="text-3xl font-bold text-white mb-4"
+          style={{
+            fontSize: '2rem',
+            fontWeight: 'bold',
+            color: 'white',
+            marginBottom: '1rem'
+          }}
         >
-          Finding Your Perfect Movies...
+          Analyzing Your Taste...
         </motion.h2>
         
         <motion.p
           animate={{ opacity: [0.3, 0.7, 0.3] }}
           transition={{ duration: 2, repeat: Infinity }}
-          className="text-gray-400"
+          style={{
+            color: '#9ca3af',
+            fontSize: '1.1rem'
+          }}
         >
-          Analyzing your taste with AI
+          Finding your perfect movie matches
         </motion.p>
       </div>
     </div>

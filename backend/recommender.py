@@ -177,7 +177,7 @@ class MovieRecommender:
         # Get selected movie vectors
         selected_vectors = self.tfidf_matrix[selected_indices]
         
-        # Calculate average vector - convert to dense array
+        # Calculate average vector
         import numpy as np
         avg_vector = np.asarray(selected_vectors.mean(axis=0))
         

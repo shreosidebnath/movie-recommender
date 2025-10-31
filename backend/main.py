@@ -30,7 +30,7 @@ class RecommendationRequest(BaseModel):
 async def startup_event():
     """Load movie dataset on startup"""
     print("Loading movie dataset...")
-    recommender.prepare_dataset(num_movies=5000, cache_file='movies_cache_5000.json')
+    recommender.prepare_dataset(num_movies=1000, cache_file='movies_cache.json')
     print("Dataset loaded successfully!")
 @app.get("/")
 async def root():

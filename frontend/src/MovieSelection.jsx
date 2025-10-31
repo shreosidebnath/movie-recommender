@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Sparkles, Film, Loader } from 'lucide-react';
+import { Film, Loader } from 'lucide-react';
 import MovieCard from './MovieCard';
 
 export default function MovieSelection({ movies, onComplete }) {
@@ -8,37 +8,48 @@ export default function MovieSelection({ movies, onComplete }) {
   const [displayCount, setDisplayCount] = useState(50);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-  const displayedMovies = movies.slice(0, Math.min(displayCount, 300));
+  const maxSelection = 50;
+  const minSelection = 5;
+  const displayedMovies = movies.slice(0, Math.min(displayCount, 1000));
 
   const handleMovieSelect = (movie) => {
     if (selectedMovies.find(m => m.id === movie.id)) {
       setSelectedMovies(selectedMovies.filter(m => m.id !== movie.id));
-    } else if (selectedMovies.length < 10) {
+    } else if (selectedMovies.length < maxSelection) {
       setSelectedMovies([...selectedMovies, movie]);
     }
   };
 
-  const progressPercent = (selectedMovies.length / 10) * 100;
+  const progressPercent = (selectedMovies.length / maxSelection) * 100;
+  const canGetRecommendations = selectedMovies.length >= minSelection;
 
-  // Show navbar on scroll
+  const getSelectionMessage = () => {
+    if (selectedMovies.length < minSelection) {
+      return `Select at least ${minSelection} movies to get started`;
+    } else if (selectedMovies.length < 10) {
+      return "Good start! More selections = better results";
+    } else if (selectedMovies.length < 20) {
+      return "Great! Getting more accurate...";
+    } else {
+      return "Excellent!";
+    }
+  };
+
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 300) {
+      if (window.scrollY > 200) {
         setShowNavbar(true);
       } else {
         setShowNavbar(false);
       }
 
-      // Infinite scroll - load more when near bottom
       const scrollPosition = window.innerHeight + window.scrollY;
       const bottomPosition = document.documentElement.scrollHeight - 500;
 
-      if (scrollPosition >= bottomPosition && !isLoadingMore && displayCount < 300) {
+      if (scrollPosition >= bottomPosition && !isLoadingMore && displayCount < 1000) {
         setIsLoadingMore(true);
-        
-        // Simulate loading delay for better UX
         setTimeout(() => {
-          setDisplayCount(prev => Math.min(prev + 50, 300));
+          setDisplayCount(prev => Math.min(prev + 50, 1000));
           setIsLoadingMore(false);
         }, 500);
       }
@@ -56,7 +67,6 @@ export default function MovieSelection({ movies, onComplete }) {
       overflowX: 'hidden'
     }}>
       
-      {/* Sticky Navbar - Shows on scroll */}
       <div style={{
         position: 'fixed',
         top: 0,
@@ -80,7 +90,6 @@ export default function MovieSelection({ movies, onComplete }) {
           gap: '1rem',
           flexWrap: 'wrap'
         }}>
-          {/* Logo/Title */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <Film size={28} color="#a855f7" />
             <span style={{ color: 'white', fontSize: '1.25rem', fontWeight: 'bold' }}>
@@ -88,7 +97,6 @@ export default function MovieSelection({ movies, onComplete }) {
             </span>
           </div>
 
-          {/* Progress Bar in Navbar */}
           <div style={{ flex: '1', maxWidth: '400px', minWidth: '200px' }}>
             <div style={{ 
               background: '#1e293b', 
@@ -99,7 +107,7 @@ export default function MovieSelection({ movies, onComplete }) {
             }}>
               <div style={{ 
                 width: `${progressPercent}%`, 
-                background: 'linear-gradient(to right, #a855f7, #ec4899)',
+                background: 'linear-gradient(to right, #9333ea, #4850ecff)',
                 height: '100%',
                 transition: 'width 0.3s ease'
               }} />
@@ -111,16 +119,15 @@ export default function MovieSelection({ movies, onComplete }) {
               fontWeight: '600',
               textAlign: 'center'
             }}>
-              {selectedMovies.length} / 10 selected
+              {selectedMovies.length} / {maxSelection} selected
             </p>
           </div>
 
-          {/* Get Recommendations Button in Navbar */}
-          {selectedMovies.length === 10 && (
+          {canGetRecommendations && (
             <button
               onClick={() => onComplete(selectedMovies)}
               style={{
-                background: 'linear-gradient(to right, #9333ea, #ec4899)',
+                background: 'linear-gradient(to right, #9333ea, #4850ecff)',
                 color: 'white',
                 fontWeight: 'bold',
                 padding: '0.75rem 1.5rem',
@@ -147,77 +154,77 @@ export default function MovieSelection({ movies, onComplete }) {
 
       <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
         
-        {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'white', marginBottom: '0.5rem' }}>
             Pick Your Favorite Movies
           </h1>
           <p style={{ fontSize: '1.2rem', color: '#d1d5db' }}>
-            Select <span style={{ color: '#a855f7', fontWeight: 'bold' }}>10 movies</span> you love
+            Select <span style={{ color: '#a855f7', fontWeight: 'bold' }}>{minSelection}-{maxSelection} movies</span> you love
+          </p>
+          <p style={{ fontSize: '0.95rem', color: '#9ca3af', marginTop: '0.5rem' }}>
+            The more you select, the more accurate your recommendations!
           </p>
         </div>
 
-        {/* Progress Bar - Initial */}
-<div style={{ marginBottom: '3rem', maxWidth: '800px', margin: '0 auto 3rem auto' }}>
-  <div style={{ 
-    display: 'flex', 
-    alignItems: 'center', 
-    gap: '1.5rem',
-    flexWrap: 'wrap',
-    justifyContent: 'center'
-  }}>
-    {/* Progress Bar */}
-    <div style={{ flex: '1', minWidth: '300px' }}>
-      <div style={{ 
-        background: '#1e293b', 
-        borderRadius: '9999px', 
-        height: '12px', 
-        overflow: 'hidden',
-        border: '1px solid #334155'
-      }}>
-        <div style={{ 
-          width: `${progressPercent}%`, 
-          background: 'linear-gradient(to right, #a855f7, #ec4899)',
-          height: '100%',
-          transition: 'width 0.3s ease'
-        }} />
-      </div>
-      <p style={{ textAlign: 'center', color: 'white', marginTop: '0.75rem', fontSize: '1.1rem', fontWeight: '600' }}>
-        {selectedMovies.length} / 10 movies selected
-      </p>
-    </div>
+        <div style={{ marginBottom: '3rem', maxWidth: '800px', margin: '0 auto 3rem auto' }}>
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '1.5rem',
+            flexWrap: 'wrap',
+            justifyContent: 'center'
+          }}>
+            <div style={{ flex: '1', minWidth: '300px' }}>
+              <div style={{ 
+                background: '#1e293b', 
+                borderRadius: '9999px', 
+                height: '12px', 
+                overflow: 'hidden',
+                border: '1px solid #334155'
+              }}>
+                <div style={{ 
+                  width: `${progressPercent}%`, 
+                  background: 'linear-gradient(to right, #a855f7, #4850ecff)',
+                  height: '100%',
+                  transition: 'width 0.3s ease'
+                }} />
+              </div>
+              <p style={{ textAlign: 'center', color: 'white', marginTop: '0.75rem', fontSize: '1.1rem', fontWeight: '600' }}>
+                {selectedMovies.length} / {maxSelection} movies selected
+              </p>
+              <p style={{ textAlign: 'center', color: '#a855f7', marginTop: '0.25rem', fontSize: '0.9rem' }}>
+                {getSelectionMessage()}
+              </p>
+            </div>
 
-      {/* Button next to progress bar */}
-      {selectedMovies.length === 10 && (
-        <button
-          onClick={() => onComplete(selectedMovies)}
-          style={{
-            background: 'linear-gradient(to right, #9333ea, #ec4899)',
-            color: 'white',
-            fontWeight: 'bold',
-            padding: '0.875rem 1.75rem',
-            borderRadius: '0.75rem',
-            fontSize: '1.1rem',
-            border: 'none',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            transition: 'transform 0.2s',
-            boxShadow: '0 4px 15px rgba(168, 85, 247, 0.4)',
-            whiteSpace: 'nowrap'
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-          onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-        >
-          <Sparkles size={20} />
-          Get Recommendations
-        </button>
-      )}
-    </div>
-  </div>
+            {canGetRecommendations && (
+              <button
+                onClick={() => onComplete(selectedMovies)}
+                style={{
+                  background: 'linear-gradient(to right, #9333ea, #4850ecff)',
+                  color: 'white',
+                  fontWeight: 'bold',
+                  padding: '0.875rem 1.75rem',
+                  borderRadius: '0.75rem',
+                  fontSize: '1.1rem',
+                  border: 'none',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  transition: 'transform 0.2s',
+                  boxShadow: '0 4px 15px rgba(168, 85, 247, 0.4)',
+                  whiteSpace: 'nowrap'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+              >
+                Get Recommendations
+              </button>
+            )}
+          </div>
+        </div>
 
-        {/* Movie Grid */}
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
@@ -234,8 +241,7 @@ export default function MovieSelection({ movies, onComplete }) {
           ))}
         </div>
 
-        {/* Loading Indicator */}
-        {isLoadingMore && displayCount < 300 && (
+        {isLoadingMore && displayCount < 1000 && (
           <div style={{ 
             textAlign: 'center', 
             padding: '3rem 0',
@@ -249,20 +255,18 @@ export default function MovieSelection({ movies, onComplete }) {
           </div>
         )}
 
-        {/* End Message */}
-        {displayCount >= 300 && (
+        {displayCount >= 1000 && (
           <div style={{ 
             textAlign: 'center', 
             padding: '3rem 0',
             color: '#d1d5db',
             fontSize: '1.1rem'
           }}>
-            <p>🎬 You've reached the end! 300 movies loaded.</p>
+            <p> You've reached the end! 1000 movies loaded.</p>
           </div>
         )}
       </div>
 
-      {/* Animations */}
       <style>{`
         @keyframes pulse {
           0%, 100% {
